@@ -32,6 +32,17 @@ defmodule Membrane.Telemetry.TimescaleDB.Reporter do
   def send_measurement(event_name, measurement)
 
   def send_measurement(
+        [:membrane, :mailbox, :size] = event_name,
+        %{element_path: path, method: method, value: value} = measurement
+      )
+      when is_binary(path) and is_binary(method) and is_integer(value) do
+    GenServer.cast(
+      __MODULE__,
+      {:measurement, event_name, Map.put(measurement, :time, NaiveDateTime.utc_now())}
+    )
+  end
+
+  def send_measurement(
         [:membrane, :input_buffer, :size] = event_name,
         %{element_path: path, method: method, value: value} = measurement
       )

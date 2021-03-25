@@ -29,6 +29,10 @@ defmodule Membrane.Telemetry.TimescaleDB.Metrics do
         cache?: true
       },
       %{
+        event_name: [:membrane, :mailbox, :size],
+        cache?: true
+      },
+      %{
         event_name: [:membrane, :link, :new],
         cache?: false
       }
