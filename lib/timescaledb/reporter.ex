@@ -27,6 +27,7 @@ defmodule Membrane.Telemetry.TimescaleDB.Reporter do
   ## Supported events
     * `[:membrane, :metric, :value]` - caches measurements to a certain threshold and flushes them to the database via `Membrane.Telemetry.TimescaleDB.Model.add_all_measurements/1`.
     * `[:membrane, :link, :new]` - instantly passes measurement to `Membrane.Telemetry.TimescaleDB.Model.add_link/1`.
+    * `[:membrane, :pipeline | :bin | :element, :init | :terminate]` - instantly persists information about component being initialized or terminated
   """
   @spec send_measurement(list(atom()), map()) :: :ok
   def send_measurement(event_name, measurement)
@@ -65,6 +66,15 @@ defmodule Membrane.Telemetry.TimescaleDB.Reporter do
     GenServer.cast(
       __MODULE__,
       {:link, link}
+    )
+  end
+
+  def send_measurement([:membrane, element_type, event_type], %{path: _path} = measurement)
+      when element_type in [:pipeline, :bin, :element] and event_type in [:init, :terminate] do
+    GenServer.cast(
+      __MODULE__,
+      {:lifecycle_event, element_type,
+       Map.put(measurement, :terminated, event_type == :terminate)}
     )
   end
 
@@ -144,6 +154,23 @@ defmodule Membrane.Telemetry.TimescaleDB.Reporter do
         Logger.error("#{@log_prefix} Error while adding new link: #{inspect(reason)}")
     end
 
+    {:noreply, state}
+  end
+
+  # ignore pipeline events
+  def handle_cast({:lifecycle_event, type, measurement}, state) when type in [:bin, :element] do
+    case Model.add_element_event(Map.put(measurement, :time, NaiveDateTime.utc_now())) do
+      {:ok, _} ->
+        Logger.debug("#{@log_prefix} Added #{type} event")
+
+      {:error, reason} ->
+        Logger.error("#{@log_prefix} Error while adding #{type} event: #{inspect(reason)}")
+    end
+
+    {:noreply, state}
+  end
+
+  def handle_cast({:lifecycle_event, _type, _measurement}, state) do
     {:noreply, state}
   end
 

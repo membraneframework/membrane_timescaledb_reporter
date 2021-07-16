@@ -53,12 +53,6 @@ defmodule Membrane.Telemetry.TimescaleDB.ModelTest do
       assert Enum.count(Repo.all(Measurement)) == 20
     end
 
-    test "returns error on duplicated Measurement" do
-      measurement = apply_time(@measurement)
-      result = [measurement, measurement] |> Model.add_all_measurements()
-      assert {:error, %Postgrex.Error{postgres: %{code: :unique_violation}}} = result
-    end
-
     test "returns error on incomplete Link" do
       assert {:error, %{valid?: false}} = Link.changeset(%Link{}, %{}) |> Repo.insert()
     end

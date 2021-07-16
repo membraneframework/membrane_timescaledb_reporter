@@ -6,7 +6,7 @@ defmodule Membrane.Telemetry.TimescaleDB.Model do
   require Logger
   import Ecto.Query
   alias Membrane.Telemetry.TimescaleDB.Repo
-  alias Membrane.Telemetry.TimescaleDB.Model.{Measurement, ComponentPath, Link}
+  alias Membrane.Telemetry.TimescaleDB.Model.{Element, Measurement, ComponentPath, Link}
 
   # inserts given element paths if they don't exist and returns them, otherwise does nothing
   defp insert_all_component_paths(multi, component_paths) do
@@ -91,5 +91,9 @@ defmodule Membrane.Telemetry.TimescaleDB.Model do
 
   def add_link(link) do
     Link.changeset(%Link{}, link) |> Repo.insert()
+  end
+
+  def add_element_event(element) do
+    Element.changeset(%Element{}, element) |> Repo.insert()
   end
 end

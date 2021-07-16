@@ -6,6 +6,12 @@ Reporter attaches itself to [Telemetry package](https://hex.pm/packages/telemetr
 
 ## Requirements
  - PostgreSQL server instance compatible with TimescaleDB extension.
+ 
+ ** IMPORTANT **
+ This reporter is only compatible with TimescaleDB version < 2.0. Make sure to use latest 1.* version.
+ 
+ ### TODO
+ Upgrade TimescaleDB to 2.*.
 
 ## Installation
 
@@ -103,9 +109,6 @@ Tables `measurements` and `component_paths` are correlated via component_id from
 Full element paths can be quite lengthy and repeat frequently so they are stored in separate table.
 
 Timescale will create hyper table based on `measurements` table and only this table will be chunked and further compressed.
-
-## Integration with Grafana 
-Instructions how to create basic TimescaleDB setup and integrate with Grafana can be found [here](GrafanaIntegration.md).
 
 ## Copyright and License
 

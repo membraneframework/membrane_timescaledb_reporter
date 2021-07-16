@@ -32,6 +32,12 @@ defmodule Membrane.Telemetry.TimescaleDB.Metrics do
         event_name: [:membrane, :link, :new],
         cache?: false
       }
-    ]
+    ] ++
+      Enum.flat_map([:bin, :element], fn type ->
+        [
+          %{event_name: [:membrane, type, :init], cache?: false},
+          %{event_name: [:membrane, type, :terminate], cache?: false}
+        ]
+      end)
   end
 end
